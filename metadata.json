@@ -1,0 +1,5 @@
+{
+  "name": "Re:LOGIC",
+  "description": "論理的思考力をゲーム感覚で習慣化するアプリ。AI生成クイズで論理スキルを鍛え、世界ランキングに挑もう。",
+  "requestFramePermissions": ["camera"]
+}
