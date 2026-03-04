@@ -166,67 +166,53 @@ export default function Tutorial({ onComplete }: { onComplete: (name: string, ch
   };
 
   return (
-    <div className="fixed inset-0 bg-cyber-black flex items-center justify-center p-6 overflow-hidden">
-      {/* Futuristic Background Elements */}
-      <div className="absolute inset-0 bg-[linear-gradient(to_right,#80808012_1px,transparent_1px),linear-gradient(to_bottom,#80808012_1px,transparent_1px)] bg-[size:40px_40px] pointer-events-none" />
-      <div className="scanline" />
-      <div className="absolute top-1/4 left-1/4 w-96 h-96 bg-neon-cyan/5 blur-[120px] rounded-full pointer-events-none" />
-      <div className="absolute bottom-1/4 right-1/4 w-96 h-96 bg-neon-violet/5 blur-[120px] rounded-full pointer-events-none" />
-
+    <div className="fixed inset-0 bg-stone-50 flex items-center justify-center p-6">
       <motion.div 
-        initial={{ y: 30, opacity: 0 }}
+        initial={{ y: 20, opacity: 0 }}
         animate={{ y: 0, opacity: 1 }}
-        className="w-full max-w-2xl glass-panel border border-white/10 rounded-[2.5rem] p-8 md:p-12 relative overflow-hidden cyber-glow"
+        className="w-full max-w-2xl bg-white rounded-[2rem] shadow-2xl shadow-stone-200/50 p-8 md:p-12 relative overflow-hidden"
       >
         {/* Progress bar */}
-        <div className="absolute top-0 left-0 right-0 h-1 bg-white/5">
+        <div className="absolute top-0 left-0 right-0 h-1.5 bg-stone-100">
           <motion.div 
             initial={{ width: 0 }}
             animate={{ width: `${((step + 1) / steps.length) * 100}%` }}
-            className="h-full bg-neon-cyan shadow-[0_0_10px_#00f3ff]"
+            className="h-full bg-stone-900"
           />
         </div>
 
         <AnimatePresence mode="wait">
           <motion.div
             key={step}
-            initial={{ x: 30, opacity: 0 }}
+            initial={{ x: 20, opacity: 0 }}
             animate={{ x: 0, opacity: 1 }}
-            exit={{ x: -30, opacity: 0 }}
-            className="min-h-[450px] flex flex-col justify-center relative z-10"
+            exit={{ x: -20, opacity: 0 }}
+            className="min-h-[400px] flex flex-col justify-center"
           >
-            <div className="text-[10px] font-mono tracking-[0.5em] uppercase text-neon-cyan/60 mb-4">
-              System Initialization // Step {step + 1} of {steps.length}
+            <div className="text-xs font-mono tracking-widest uppercase text-stone-400 mb-2">
+              Step {step + 1} / {steps.length}
             </div>
-            <h2 className="text-4xl font-black mb-10 font-tech tracking-tight italic text-white drop-shadow-[0_0_8px_rgba(255,255,255,0.3)]">
-              {steps[step].title}
-            </h2>
-            <div className="text-stone-300">
-              {steps[step].content}
-            </div>
+            <h2 className="text-3xl font-black mb-8">{steps[step].title}</h2>
+            {steps[step].content}
           </motion.div>
         </AnimatePresence>
 
-        <div className="mt-12 flex justify-between items-center relative z-10">
+        <div className="mt-12 flex justify-between items-center">
           <button 
             onClick={() => setStep(Math.max(0, step - 1))}
             disabled={step === 0}
-            className={`text-[10px] font-bold uppercase tracking-[0.3em] font-mono transition-all ${step === 0 ? 'opacity-0' : 'text-stone-500 hover:text-neon-cyan'}`}
+            className={`text-stone-400 font-bold uppercase tracking-widest text-sm ${step === 0 ? 'opacity-0' : 'hover:text-stone-900'}`}
           >
             {t.back}
           </button>
           <button 
             onClick={next}
             disabled={(step === 1 && !name.trim()) || (step === 4 && !selectedChar)}
-            className="px-12 py-5 bg-white text-cyber-black rounded-2xl font-bold font-tech tracking-tight shadow-[0_0_20px_rgba(255,255,255,0.2)] hover:scale-105 active:scale-95 transition-all disabled:opacity-20 disabled:hover:scale-100"
+            className="px-10 py-4 bg-stone-900 text-white rounded-2xl font-bold shadow-xl shadow-stone-900/20 hover:scale-105 active:scale-95 transition-all disabled:opacity-30 disabled:hover:scale-100"
           >
             {step === steps.length - 1 ? t.tutorial_start : t.next}
           </button>
         </div>
-
-        {/* Decorative Corner Accents */}
-        <div className="absolute top-4 right-4 w-8 h-8 border-t-2 border-r-2 border-white/10 rounded-tr-xl pointer-events-none" />
-        <div className="absolute bottom-4 left-4 w-8 h-8 border-b-2 border-l-2 border-white/10 rounded-bl-xl pointer-events-none" />
       </motion.div>
     </div>
   );

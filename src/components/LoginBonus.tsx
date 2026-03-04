@@ -3,8 +3,7 @@ import { motion, AnimatePresence } from 'motion/react';
 import confetti from 'canvas-confetti';
 import { User } from '../types';
 import { TRANSLATIONS } from '../translations';
-import { audioManager } from '../utils/audio';
-import { Gift, Check, Coins, Gem, Ticket, X, Trophy, Flame } from 'lucide-react';
+import { Gift, Check, Coins, Gem, Ticket, X, Trophy } from 'lucide-react';
 
 interface LoginBonusProps {
   user: User;
@@ -39,7 +38,6 @@ export default function LoginBonus({ user, onUpdateUser, onClose }: LoginBonusPr
   const handleClaim = () => {
     if (!canClaim) return;
     
-    audioManager.playSFX('TITLE_TAP');
     setIsClaiming(true);
     const reward = getRewardForDay(user.loginDays);
     setClaimedReward(reward);
@@ -81,56 +79,36 @@ export default function LoginBonus({ user, onUpdateUser, onClose }: LoginBonusPr
     }, 1000);
   };
 
-  const handleClose = () => {
-    audioManager.playSFX('BUTTON_TAP');
-    onClose();
-  };
-
-  const handleMilestoneConfirm = () => {
-    audioManager.playSFX('BUTTON_TAP');
-    setShowMilestone(null);
-    setIsClaiming(false);
-    onClose();
-  };
-
   return (
     <div 
       className={`fixed inset-0 z-50 flex items-center justify-center p-6 backdrop-blur-xl ${isDark ? 'bg-black/90' : 'bg-stone-900/90'}`}
-      onClick={handleClose}
+      onClick={onClose}
     >
       <motion.div 
         initial={{ scale: 0.9, opacity: 0 }}
         animate={{ scale: 1, opacity: 1 }}
-        className={`rounded-[3rem] w-full max-w-2xl max-h-[90vh] overflow-hidden flex flex-col shadow-2xl relative ${isDark ? 'bg-cyber-black border border-white/10' : 'bg-white'}`}
+        className={`rounded-[3rem] w-full max-w-2xl max-h-[90vh] overflow-hidden flex flex-col shadow-2xl ${isDark ? 'bg-stone-900 border border-stone-800' : 'bg-white'}`}
         onClick={(e) => e.stopPropagation()}
       >
-        {/* Futuristic Background Elements */}
-        {isDark && (
-          <>
-            <div className="absolute inset-0 bg-[linear-gradient(to_right,#80808012_1px,transparent_1px),linear-gradient(to_bottom,#80808012_1px,transparent_1px)] bg-[size:40px_40px] pointer-events-none" />
-            <div className="scanline" />
-          </>
-        )}
-
         {/* Header */}
-        <div className={`p-8 border-b flex items-center justify-between relative z-10 ${isDark ? 'border-white/10' : 'border-stone-100'}`}>
+        <div className={`p-8 border-b flex items-center justify-between ${isDark ? 'border-stone-800' : 'border-stone-100'}`}>
           <div className="flex items-center gap-4">
-            <div className={`w-14 h-14 rounded-2xl flex items-center justify-center border ${isDark ? 'bg-neon-cyan/10 border-neon-cyan/30 text-neon-cyan cyber-glow' : 'bg-amber-100 text-amber-600'}`}>
-              <Flame className="w-8 h-8 fill-current" />
+            <div className={`w-12 h-12 rounded-2xl flex items-center justify-center ${isDark ? 'bg-amber-900/30 text-amber-400' : 'bg-amber-100 text-amber-600'}`}>
+              <Gift className="w-6 h-6" />
             </div>
             <div>
-              <h2 className="text-3xl font-black font-tech tracking-tight italic">{t.login_bonus_title}</h2>
-              <p className={`text-[10px] font-bold uppercase tracking-[0.3em] font-mono ${isDark ? 'text-neon-cyan/60' : 'text-stone-400'}`}>System Rewards</p>
+              <h2 className="text-2xl font-black">{t.login_bonus_title}</h2>
+              <p className="text-sm text-stone-400 font-bold uppercase tracking-widest">Daily Rewards</p>
             </div>
           </div>
-          <button onClick={handleClose} className={`p-2 rounded-full transition-colors ${isDark ? 'hover:bg-white/10 text-stone-400' : 'hover:bg-stone-100'}`}>
+          <button onClick={onClose} className={`p-2 rounded-full transition-colors ${isDark ? 'hover:bg-stone-800' : 'hover:bg-stone-100'}`}>
             <X className="w-6 h-6" />
           </button>
         </div>
 
         {/* Grid */}
-        <div className="flex-1 overflow-y-auto p-8 relative z-10">
-          <div className="grid grid-cols-5 gap-4">
+        <div className="flex-1 overflow-y-auto p-8">
+          <div className="grid grid-cols-5 gap-3">
             {days.map((day) => {
               const isClaimed = day < user.loginDays || (day === user.loginDays && !canClaim);
               const isToday = day === user.loginDays && canClaim;
@@ -139,23 +117,23 @@ export default function LoginBonus({ user, onUpdateUser, onClose }: LoginBonusPr
               return (
                 <div 
                   key={day}
-                  className={`aspect-square rounded-2xl border flex flex-col items-center justify-center relative transition-all ${
+                  className={`aspect-square rounded-2xl border-2 flex flex-col items-center justify-center relative transition-all ${
                     isClaimed 
-                      ? isDark ? 'bg-white/5 border-white/5 opacity-40' : 'bg-stone-50 border-stone-100 opacity-50' 
+                      ? isDark ? 'bg-stone-800/50 border-stone-800 opacity-50' : 'bg-stone-50 border-stone-100 opacity-50' 
                       : isToday 
-                        ? isDark ? 'glass-panel border-neon-cyan cyber-glow scale-105 z-10' : 'bg-white border-stone-900 shadow-lg scale-105 z-10' 
-                        : isDark ? 'bg-white/5 border-white/10 hover:border-white/20' : 'bg-white border-stone-100'
+                        ? isDark ? 'bg-stone-800 border-stone-100 shadow-lg scale-105 z-10' : 'bg-white border-stone-900 shadow-lg scale-105 z-10' 
+                        : isDark ? 'bg-stone-800 border-stone-700' : 'bg-white border-stone-100'
                   }`}
                 >
-                  <span className={`text-[9px] font-bold absolute top-2 left-2 font-mono ${isToday ? 'text-neon-cyan' : 'text-stone-500'}`}>#{day.toString().padStart(2, '0')}</span>
-                  <div className={`mb-1 transition-colors ${isToday ? isDark ? 'text-neon-cyan' : 'text-stone-900' : 'text-stone-400'}`}>
+                  <span className="text-[10px] font-bold text-stone-400 absolute top-2 left-2">Day {day}</span>
+                  <div className={`mb-1 ${isToday ? isDark ? 'text-white' : 'text-stone-900' : 'text-stone-300'}`}>
                     {reward.icon}
                   </div>
-                  <span className={`text-[10px] font-black font-mono ${isToday ? 'text-white' : 'text-stone-500'}`}>{reward.amount}</span>
+                  <span className={`text-[10px] font-black ${isDark && !isClaimed ? 'text-stone-300' : ''}`}>{reward.amount}</span>
                   
                   {isClaimed && (
-                    <div className={`absolute inset-0 flex items-center justify-center rounded-2xl ${isDark ? 'bg-neon-emerald/10' : 'bg-emerald-500/10'}`}>
-                      <Check className="w-6 h-6 text-neon-emerald drop-shadow-[0_0_8px_rgba(16,185,129,0.5)]" />
+                    <div className={`absolute inset-0 flex items-center justify-center rounded-2xl ${isDark ? 'bg-emerald-500/20' : 'bg-emerald-500/10'}`}>
+                      <Check className="w-6 h-6 text-emerald-500" />
                     </div>
                   )}
                 </div>
@@ -165,20 +143,20 @@ export default function LoginBonus({ user, onUpdateUser, onClose }: LoginBonusPr
         </div>
 
         {/* Footer */}
-        <div className={`p-8 border-t flex flex-col gap-4 relative z-10 ${isDark ? 'bg-white/5 border-white/10' : 'bg-stone-50 border-stone-100'}`}>
+        <div className={`p-8 border-t flex flex-col gap-3 ${isDark ? 'bg-stone-800/50 border-stone-800' : 'bg-stone-50 border-stone-100'}`}>
           {canClaim ? (
             <>
               <button 
                 onClick={handleClaim}
                 disabled={isClaiming}
-                className={`w-full py-5 rounded-2xl font-bold shadow-xl transition-all flex items-center justify-center gap-3 font-tech tracking-tight ${isDark ? 'bg-white text-cyber-black shadow-white/10' : 'bg-stone-900 text-white shadow-stone-900/20'}`}
+                className={`w-full py-5 rounded-2xl font-bold shadow-xl transition-all flex items-center justify-center gap-3 ${isDark ? 'bg-stone-100 text-stone-900 shadow-white/5' : 'bg-stone-900 text-white shadow-stone-900/20'}`}
               >
                 {isClaiming ? t.login_bonus_claiming : t.login_bonus_claim}
               </button>
               {!isClaiming && (
                 <button 
-                  onClick={handleClose}
-                  className={`w-full py-3 rounded-xl font-bold text-[10px] uppercase tracking-[0.2em] transition-colors font-mono ${isDark ? 'text-stone-500 hover:text-neon-cyan' : 'text-stone-400 hover:text-stone-600'}`}
+                  onClick={onClose}
+                  className={`w-full py-3 rounded-xl font-bold text-sm transition-colors ${isDark ? 'text-stone-500 hover:text-stone-300' : 'text-stone-400 hover:text-stone-600'}`}
                 >
                   {user.language === 'JA' ? 'あとで受け取る' : user.language === 'ZH' ? '稍後領取' : user.language === 'KO' ? '나중에 받기' : 'Claim Later'}
                 </button>
@@ -186,8 +164,8 @@ export default function LoginBonus({ user, onUpdateUser, onClose }: LoginBonusPr
             </>
           ) : (
             <div className="text-center space-y-2">
-              <p className={`font-bold text-sm font-tech ${isDark ? 'text-neon-emerald' : 'text-stone-400'}`}>{t.login_bonus_claimed}</p>
-              <p className={`text-[10px] font-mono uppercase tracking-[0.3em] ${isDark ? 'text-stone-500' : 'text-stone-300'}`}>{t.login_bonus_next.replace('{hours}', hoursLeft.toString())}</p>
+              <p className="text-stone-400 font-bold text-sm">{t.login_bonus_claimed}</p>
+              <p className="text-xs text-stone-300 uppercase tracking-widest">{t.login_bonus_next.replace('{hours}', hoursLeft.toString())}</p>
             </div>
           )}
         </div>
@@ -240,7 +218,11 @@ export default function LoginBonus({ user, onUpdateUser, onClose }: LoginBonusPr
                 {user.language === 'JA' ? '連続ログイン達成！' : user.language === 'ZH' ? '連續登錄達成！' : user.language === 'KO' ? '연속 로그인 달성!' : 'Consecutive Login Milestone!'}
               </p>
               <button 
-                onClick={handleMilestoneConfirm}
+                onClick={() => {
+                  setShowMilestone(null);
+                  setIsClaiming(false);
+                  onClose();
+                }}
                 className="px-12 py-4 bg-white text-stone-900 rounded-2xl font-bold hover:scale-105 transition-all shadow-xl"
               >
                 {t.lesson_rank_up_confirm}

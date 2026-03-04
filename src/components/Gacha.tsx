@@ -4,7 +4,6 @@ import confetti from 'canvas-confetti';
 import { User, Rarity } from '../types';
 import { RARITIES } from '../constants';
 import { TRANSLATIONS } from '../translations';
-import { audioManager } from '../utils/audio';
 import { 
   X, 
   Coins, 
@@ -58,13 +57,11 @@ export default function Gacha({ user, onUpdateUser, onBack }: GachaProps) {
     if (type === 'GEM' && user.gems < pullCosts.GEM) return;
     if (type === 'TICKET' && user.tickets < pullCosts.TICKET) return;
     
-    audioManager.playSFX('MODE_TAP');
     setPullType(type);
     setStep('CONFIRM');
   };
 
   const startPull = () => {
-    audioManager.playSFX('BUTTON_TAP');
     // Consume resources
     if (pullType === 'COIN') onUpdateUser({ coins: user.coins - pullCosts.COIN });
     if (pullType === 'GEM') onUpdateUser({ gems: user.gems - pullCosts.GEM });
@@ -78,7 +75,6 @@ export default function Gacha({ user, onUpdateUser, onBack }: GachaProps) {
   const handleTap = () => {
     if (tapCount >= 5) return;
     
-    audioManager.playSFX('TITLE_TAP');
     const nextTap = tapCount + 1;
     setTapCount(nextTap);
     
@@ -86,11 +82,11 @@ export default function Gacha({ user, onUpdateUser, onBack }: GachaProps) {
     setShowLightning(true);
     setTimeout(() => setShowLightning(false), 150);
     
-    // Chance to upgrade rarity - Adjusted to ~2% for Powerful Rare (0.37^4 ≈ 0.018)
+    // Chance to upgrade rarity
     const rarities: Rarity[] = ['NORMAL', 'RARE', 'SUPER_RARE', 'ULTRA_RARE', 'POWERFUL_RARE', 'LEGEND_RARE'];
     const currentIndex = rarities.indexOf(currentRarity);
     
-    if (Math.random() < 0.37 && currentIndex < rarities.length - 1) {
+    if (Math.random() < 0.27 && currentIndex < rarities.length - 1) {
       const nextRarity = rarities[currentIndex + 1];
       setCurrentRarity(nextRarity);
       
@@ -104,7 +100,7 @@ export default function Gacha({ user, onUpdateUser, onBack }: GachaProps) {
         particleCount: Math.floor(30 + intensity * 70),
         spread: 40 + intensity * 60,
         origin: { y: 0.7 },
-        colors: [RARITIES[nextRarity].color, '#ffffff', '#00f3ff']
+        colors: [RARITIES[nextRarity].color, '#ffffff']
       });
     }
 
@@ -122,7 +118,7 @@ export default function Gacha({ user, onUpdateUser, onBack }: GachaProps) {
             particleCount: 200,
             spread: 100,
             origin: { y: 0.5 },
-            colors: [RARITIES[currentRarity].color, '#ffffff', '#00f3ff', '#ffd700']
+            colors: [RARITIES[currentRarity].color, '#ffffff', '#ffd700']
           });
         }
         
@@ -131,97 +127,74 @@ export default function Gacha({ user, onUpdateUser, onBack }: GachaProps) {
     }
   };
 
-  const handleBack = () => {
-    audioManager.playSFX('BUTTON_TAP');
-    onBack();
-  };
-
-  const handleReset = () => {
-    audioManager.playSFX('BUTTON_TAP');
-    setStep('IDLE');
-  };
-
-  const handleCancel = () => {
-    audioManager.playSFX('BUTTON_TAP');
-    setStep('IDLE');
-  };
-
   const isDark = user.theme === 'DARK';
   const t = TRANSLATIONS[user.language || 'JA'];
   const rarities: Rarity[] = ['NORMAL', 'RARE', 'SUPER_RARE', 'ULTRA_RARE', 'POWERFUL_RARE', 'LEGEND_RARE'];
   const currentIndex = rarities.indexOf(currentRarity);
 
   return (
-    <div className={`min-h-screen flex flex-col transition-colors duration-500 relative overflow-hidden ${isDark ? 'bg-cyber-black text-white' : 'bg-stone-50 text-stone-900'}`}>
-      {/* Futuristic Background Elements */}
-      {isDark && (
-        <>
-          <div className="absolute inset-0 bg-[linear-gradient(to_right,#80808012_1px,transparent_1px),linear-gradient(to_bottom,#80808012_1px,transparent_1px)] bg-[size:40px_40px] pointer-events-none" />
-          <div className="scanline" />
-        </>
-      )}
-
+    <div className={`min-h-screen flex flex-col transition-colors duration-500 ${isDark ? 'bg-black text-white' : 'bg-stone-50 text-stone-900'}`}>
       {/* Header */}
-      <div className={`sticky top-0 z-30 backdrop-blur-md border-b px-6 py-4 flex items-center justify-between transition-colors ${isDark ? 'bg-cyber-black/80 border-white/10' : 'bg-white/80 border-stone-200'}`}>
-        <button onClick={handleBack} className={`p-2 rounded-full transition-colors ${isDark ? 'hover:bg-white/10 text-stone-400' : 'hover:bg-stone-200 text-stone-600'}`}>
+      <div className={`p-6 flex items-center justify-between border-b transition-colors ${isDark ? 'border-stone-800' : 'border-stone-200'}`}>
+        <button onClick={onBack} className={`p-2 rounded-full transition-colors ${isDark ? 'hover:bg-white/10 text-stone-400' : 'hover:bg-stone-200 text-stone-600'}`}>
           <X className="w-6 h-6" />
         </button>
         <div className="flex items-center gap-4">
-          <div className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full border ${isDark ? 'bg-white/5 border-white/10' : 'bg-stone-100 border-stone-200'}`}>
-            <Coins className="w-4 h-4 text-neon-cyan" />
-            <span className="text-sm font-bold font-mono">{user.coins.toLocaleString()}</span>
+          <div className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full ${isDark ? 'bg-white/10' : 'bg-stone-200'}`}>
+            <Coins className="w-4 h-4 text-amber-500" />
+            <span className="text-sm font-bold">{user.coins.toLocaleString()}</span>
           </div>
-          <div className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full border ${isDark ? 'bg-white/5 border-white/10' : 'bg-stone-100 border-stone-200'}`}>
-            <Gem className="w-4 h-4 text-neon-violet" />
-            <span className="text-sm font-bold font-mono">{user.gems.toLocaleString()}</span>
+          <div className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full ${isDark ? 'bg-white/10' : 'bg-stone-200'}`}>
+            <Gem className="w-4 h-4 text-blue-500" />
+            <span className="text-sm font-bold">{user.gems.toLocaleString()}</span>
           </div>
-          <div className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full border ${isDark ? 'bg-white/5 border-white/10' : 'bg-stone-100 border-stone-200'}`}>
-            <Ticket className="w-4 h-4 text-neon-emerald" />
-            <span className="text-sm font-bold font-mono">{user.tickets.toLocaleString()}</span>
+          <div className={`flex items-center gap-1.5 px-3 py-1.5 rounded-full ${isDark ? 'bg-white/10' : 'bg-stone-200'}`}>
+            <Ticket className="w-4 h-4 text-emerald-500" />
+            <span className="text-sm font-bold">{user.tickets.toLocaleString()}</span>
           </div>
         </div>
       </div>
 
-      <div className="flex-1 flex flex-col items-center justify-center p-6 relative z-10">
+      <div className="flex-1 flex flex-col items-center justify-center p-6">
         {step === 'IDLE' && (
           <div className="max-w-md w-full space-y-12 text-center">
             <div className="relative">
               <motion.div 
-                animate={{ y: [0, -15, 0], rotate: [0, 2, -2, 0] }}
-                transition={{ repeat: Infinity, duration: 5 }}
-                className={`w-64 h-64 rounded-[3rem] mx-auto border flex items-center justify-center shadow-2xl transition-all ${isDark ? 'glass-panel border-white/10 cyber-glow' : 'bg-white border-stone-100 shadow-stone-200'}`}
+                animate={{ y: [0, -10, 0] }}
+                transition={{ repeat: Infinity, duration: 4 }}
+                className={`w-64 h-64 rounded-[3rem] mx-auto border-4 flex items-center justify-center shadow-2xl transition-colors ${isDark ? 'bg-stone-900 border-white/5 shadow-black/40' : 'bg-white border-stone-100 shadow-stone-200'}`}
               >
-                <GachaIcon className={`w-32 h-32 ${isDark ? 'text-neon-cyan drop-shadow-[0_0_15px_rgba(0,243,255,0.5)]' : 'text-stone-200'}`} />
+                <GachaIcon className={`w-24 h-24 ${isDark ? 'text-white/10' : 'text-stone-100'}`} />
               </motion.div>
-              <div className={`absolute -bottom-6 left-1/2 -translate-x-1/2 w-48 h-12 blur-2xl rounded-full ${isDark ? 'bg-neon-cyan/10' : 'bg-stone-200/40'}`} />
+              <div className={`absolute -bottom-4 left-1/2 -translate-x-1/2 w-48 h-8 blur-xl rounded-full ${isDark ? 'bg-black/40' : 'bg-stone-200/40'}`} />
             </div>
 
             <div className="space-y-4">
-              <h2 className="text-4xl font-black italic tracking-tighter font-tech">LOGICAL GACHA</h2>
-              <p className={`text-sm font-medium ${isDark ? 'text-stone-500' : 'text-stone-400'}`}>{t.gacha_desc}</p>
+              <h2 className="text-3xl font-black italic tracking-tighter">LOGICAL GACHA</h2>
+              <p className={`text-sm ${isDark ? 'text-stone-500' : 'text-stone-400'}`}>{t.gacha_desc}</p>
             </div>
 
-            <div className="grid grid-cols-1 gap-4">
+            <div className="grid grid-cols-1 gap-3">
               <button 
                 onClick={() => handlePullRequest('COIN')}
-                className={`w-full py-5 rounded-2xl font-bold flex items-center justify-center gap-3 hover:scale-105 transition-all shadow-xl font-tech tracking-tight ${isDark ? 'bg-white text-cyber-black shadow-white/10' : 'bg-stone-900 text-white'}`}
+                className={`w-full py-4 rounded-2xl font-bold flex items-center justify-center gap-3 hover:scale-105 transition-all shadow-lg ${isDark ? 'bg-white text-stone-950' : 'bg-stone-900 text-white'}`}
               >
-                <Coins className="w-5 h-5 text-neon-cyan" />
+                <Coins className="w-5 h-5 text-amber-500" />
                 {t.gacha_start_coin.replace('{cost}', pullCosts.COIN.toString())}
               </button>
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-2 gap-3">
                 <button 
                   onClick={() => handlePullRequest('GEM')}
-                  className={`py-5 rounded-2xl font-bold flex items-center justify-center gap-3 hover:scale-105 transition-all border ${isDark ? 'bg-white/5 border-white/10 text-white hover:bg-white/10' : 'bg-stone-100 border-stone-200 text-stone-900 hover:bg-stone-200'}`}
+                  className={`py-4 rounded-2xl font-bold flex items-center justify-center gap-3 hover:scale-105 transition-all ${isDark ? 'bg-white/10 text-white hover:bg-white/20' : 'bg-stone-200 text-stone-900 hover:bg-stone-300'}`}
                 >
-                  <Gem className="w-5 h-5 text-neon-violet" />
+                  <Gem className="w-5 h-5 text-blue-500" />
                   {t.gacha_start_gem.replace('{cost}', pullCosts.GEM.toString())}
                 </button>
                 <button 
                   onClick={() => handlePullRequest('TICKET')}
-                  className={`py-5 rounded-2xl font-bold flex items-center justify-center gap-3 hover:scale-105 transition-all border ${isDark ? 'bg-white/5 border-white/10 text-white hover:bg-white/10' : 'bg-stone-100 border-stone-200 text-stone-900 hover:bg-stone-200'}`}
+                  className={`py-4 rounded-2xl font-bold flex items-center justify-center gap-3 hover:scale-105 transition-all ${isDark ? 'bg-white/10 text-white hover:bg-white/20' : 'bg-stone-200 text-stone-900 hover:bg-stone-300'}`}
                 >
-                  <Ticket className="w-5 h-5 text-neon-emerald" />
+                  <Ticket className="w-5 h-5 text-emerald-500" />
                   {t.gacha_start_ticket.replace('{cost}', pullCosts.TICKET.toString())}
                 </button>
               </div>
@@ -231,24 +204,24 @@ export default function Gacha({ user, onUpdateUser, onBack }: GachaProps) {
 
         {step === 'PULLING' && (
           <motion.div 
-            animate={showLightning ? { x: [-3, 3, -3, 3, 0], y: [-3, 3, -3, 3, 0] } : {}}
+            animate={showLightning ? { x: [-2, 2, -2, 2, 0], y: [-2, 2, -2, 2, 0] } : {}}
             transition={{ duration: 0.1 }}
             className="text-center space-y-12 relative w-full max-w-lg mx-auto"
           >
             {/* Rarity Display at Top */}
             <motion.div 
               key={currentRarity}
-              initial={{ y: -30, opacity: 0 }}
+              initial={{ y: -20, opacity: 0 }}
               animate={{ y: 0, opacity: 1 }}
-              className="absolute -top-32 left-0 right-0"
+              className="absolute -top-24 left-0 right-0"
             >
               <div 
-                className="text-5xl md:text-7xl font-black italic uppercase tracking-tighter drop-shadow-[0_0_20px_currentColor] font-tech"
+                className="text-4xl md:text-6xl font-black italic uppercase tracking-tighter drop-shadow-lg"
                 style={{ color: RARITIES[currentRarity].color }}
               >
                 {RARITIES[currentRarity].name}
               </div>
-              <div className={`text-[10px] font-bold uppercase tracking-[0.5em] mt-3 font-mono ${isDark ? 'text-white/40' : 'text-stone-400'}`}>
+              <div className={`text-xs font-bold uppercase tracking-[0.3em] mt-2 ${isDark ? 'text-white/40' : 'text-stone-400'}`}>
                 Current Grade
               </div>
             </motion.div>
@@ -256,17 +229,17 @@ export default function Gacha({ user, onUpdateUser, onBack }: GachaProps) {
             <div className="relative">
               <motion.button 
                 onClick={handleTap}
-                whileTap={{ scale: 0.9 }}
+                whileTap={{ scale: 0.95 }}
                 animate={{ 
-                  scale: 1 + (tapCount * 0.08),
-                  rotate: tapCount * 3,
-                  boxShadow: `0 0 ${30 + tapCount * 15}px ${RARITIES[currentRarity].color}60`
+                  scale: 1 + (tapCount * 0.05),
+                  rotate: tapCount * 2,
+                  boxShadow: `0 0 ${20 + tapCount * 10}px ${RARITIES[currentRarity].color}40`
                 }}
-                className={`w-64 h-64 rounded-[3rem] mx-auto flex items-center justify-center transition-all duration-500 cursor-pointer relative z-10`}
-                style={{ backgroundColor: RARITIES[currentRarity].color + '15', border: `4px solid ${RARITIES[currentRarity].color}30` }}
+                className={`w-64 h-64 rounded-[3rem] mx-auto flex items-center justify-center transition-colors duration-500 cursor-pointer relative z-10`}
+                style={{ backgroundColor: RARITIES[currentRarity].color + '20', border: `4px solid ${RARITIES[currentRarity].color}40` }}
               >
                 <Lightbulb 
-                  className="w-28 h-28 transition-colors duration-500 drop-shadow-[0_0_10px_currentColor]" 
+                  className="w-24 h-24 transition-colors duration-500" 
                   style={{ color: RARITIES[currentRarity].color }}
                 />
 
@@ -274,26 +247,26 @@ export default function Gacha({ user, onUpdateUser, onBack }: GachaProps) {
                 <AnimatePresence>
                   {showLightning && (
                     <>
-                      {[...Array(currentIndex + 4)].map((_, i) => (
+                      {[...Array(currentIndex + 2)].map((_, i) => (
                         <motion.div
                           key={`zap-${i}`}
                           initial={{ opacity: 0, scale: 0.5, rotate: Math.random() * 360 }}
-                          animate={{ opacity: [0, 1, 0], scale: [0.5, 2, 1], x: (Math.random() - 0.5) * 400, y: (Math.random() - 0.5) * 400 }}
+                          animate={{ opacity: [0, 1, 0], scale: [0.5, 1.5, 1], x: (Math.random() - 0.5) * 300, y: (Math.random() - 0.5) * 300 }}
                           exit={{ opacity: 0 }}
                           className="absolute pointer-events-none"
                           style={{ color: RARITIES[currentRarity].color }}
                         >
                           {i % 2 === 0 ? (
-                            <Zap className="w-14 h-14 fill-current filter drop-shadow-[0_0_12px_currentColor]" />
+                            <Zap className="w-12 h-12 fill-current filter drop-shadow-[0_0_8px_currentColor]" />
                           ) : (
-                            <Sparkles className="w-12 h-12 fill-current filter drop-shadow-[0_0_12px_currentColor]" />
+                            <Sparkles className="w-10 h-10 fill-current filter drop-shadow-[0_0_8px_currentColor]" />
                           )}
                         </motion.div>
                       ))}
                       {/* Screen Flash */}
                       <motion.div 
                         initial={{ opacity: 0 }}
-                        animate={{ opacity: [0, 0.3, 0] }}
+                        animate={{ opacity: [0, 0.2, 0] }}
                         className="fixed inset-0 pointer-events-none z-[100]"
                         style={{ backgroundColor: RARITIES[currentRarity].color }}
                       />
@@ -307,7 +280,7 @@ export default function Gacha({ user, onUpdateUser, onBack }: GachaProps) {
                     <motion.div
                       key={i}
                       initial={{ scale: 0, opacity: 1 }}
-                      animate={{ scale: 2.5, opacity: 0 }}
+                      animate={{ scale: 2, opacity: 0 }}
                       className="absolute inset-0 rounded-[3rem] border-4 pointer-events-none"
                       style={{ borderColor: RARITIES[currentRarity].color }}
                     />
@@ -321,7 +294,7 @@ export default function Gacha({ user, onUpdateUser, onBack }: GachaProps) {
                     initial={{ opacity: 0, y: 10 }}
                     animate={{ opacity: 1, y: 0 }}
                     exit={{ opacity: 0 }}
-                    className={`absolute -bottom-16 left-1/2 -translate-x-1/2 text-[10px] font-bold uppercase tracking-[0.8em] font-mono ${isDark ? 'text-neon-cyan' : 'text-stone-400'}`}
+                    className={`absolute -bottom-12 left-1/2 -translate-x-1/2 text-xs font-bold uppercase tracking-[0.5em] ${isDark ? 'text-white/40' : 'text-stone-400'}`}
                   >
                     {t.gacha_tap_charge} ({tapCount}/5)
                   </motion.div>
@@ -330,7 +303,7 @@ export default function Gacha({ user, onUpdateUser, onBack }: GachaProps) {
             </div>
 
             {/* Hint text */}
-            <p className={`text-sm font-bold font-tech tracking-tight ${isDark ? 'text-stone-500' : 'text-stone-400'}`}>
+            <p className={`text-sm font-bold ${isDark ? 'text-stone-500' : 'text-stone-400'}`}>
               {user.language === 'JA' ? 'アイコンをタップしてパワーを注入！' : 'Tap the icon to inject power!'}
             </p>
           </motion.div>
@@ -344,28 +317,28 @@ export default function Gacha({ user, onUpdateUser, onBack }: GachaProps) {
           >
             <div className="relative">
               <motion.div 
-                animate={{ rotate: 360, scale: [1, 1.2, 1] }}
+                animate={{ rotate: 360 }}
                 transition={{ repeat: Infinity, duration: 10, ease: "linear" }}
-                className="absolute inset-0 blur-[60px] opacity-40"
+                className="absolute inset-0 blur-3xl opacity-30"
                 style={{ backgroundColor: RARITIES[result.rarity].color }}
               />
               <div 
-                className="relative w-64 h-64 rounded-[3rem] mx-auto flex flex-col items-center justify-center shadow-2xl border-4"
-                style={{ backgroundColor: RARITIES[result.rarity].color, borderColor: 'rgba(255,255,255,0.3)' }}
+                className="relative w-64 h-64 rounded-[3rem] mx-auto flex flex-col items-center justify-center shadow-2xl"
+                style={{ backgroundColor: RARITIES[result.rarity].color }}
               >
-                <Sparkles className="w-24 h-24 text-white mb-4 drop-shadow-[0_0_15px_rgba(255,255,255,0.8)]" />
-                <div className="text-[10px] font-bold uppercase tracking-[0.3em] text-white/80 font-mono">{RARITIES[result.rarity].name}</div>
+                <Sparkles className="w-24 h-24 text-white mb-4" />
+                <div className="text-xs font-bold uppercase tracking-widest text-white/60">{RARITIES[result.rarity].name}</div>
               </div>
             </div>
 
-            <div className="space-y-4">
-              <h2 className="text-5xl font-black italic font-tech tracking-tight">{result.name}</h2>
-              <p className={`font-medium ${isDark ? 'text-stone-500' : 'text-stone-400'}`}>{t.gacha_result_desc}</p>
+            <div className="space-y-2">
+              <h2 className="text-4xl font-black italic">{result.name}</h2>
+              <p className={isDark ? 'text-stone-500' : 'text-stone-400'}>{t.gacha_result_desc}</p>
             </div>
 
             <button 
-              onClick={handleReset}
-              className={`px-16 py-5 rounded-2xl font-bold hover:scale-105 transition-all shadow-xl font-tech tracking-tight ${isDark ? 'bg-white text-cyber-black shadow-white/10' : 'bg-stone-900 text-white'}`}
+              onClick={() => setStep('IDLE')}
+              className={`px-12 py-4 rounded-2xl font-bold hover:scale-105 transition-all shadow-xl ${isDark ? 'bg-white text-stone-950' : 'bg-stone-900 text-white'}`}
             >
               {t.gacha_result_btn}
             </button>
@@ -380,26 +353,26 @@ export default function Gacha({ user, onUpdateUser, onBack }: GachaProps) {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 z-50 flex items-center justify-center p-6 bg-black/90 backdrop-blur-xl"
+            className="fixed inset-0 z-50 flex items-center justify-center p-6 bg-black/80 backdrop-blur-md"
           >
-            <div className={`border rounded-[2.5rem] p-10 max-w-sm w-full text-center shadow-2xl ${isDark ? 'glass-panel border-white/10' : 'bg-white border-stone-100'}`}>
-              <div className={`w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-6 ${isDark ? 'bg-white/5 text-neon-cyan' : 'bg-stone-100 text-stone-900'}`}>
+            <div className={`border rounded-[2.5rem] p-8 max-w-sm w-full text-center shadow-2xl ${isDark ? 'bg-stone-900 border-stone-800' : 'bg-white border-stone-100'}`}>
+              <div className={`w-16 h-16 rounded-full flex items-center justify-center mx-auto mb-6 ${isDark ? 'bg-white/5 text-white' : 'bg-stone-100 text-stone-900'}`}>
                 <AlertCircle className="w-8 h-8" />
               </div>
-              <h2 className="text-2xl font-black mb-2 font-tech tracking-tight">{t.gacha_confirm_title}</h2>
-              <p className={`text-sm mb-10 font-medium ${isDark ? 'text-stone-400' : 'text-stone-500'}`}>
+              <h2 className="text-xl font-black mb-2">{t.gacha_confirm_title}</h2>
+              <p className={`text-sm mb-8 ${isDark ? 'text-stone-400' : 'text-stone-500'}`}>
                 {t.gacha_confirm_desc.replace('{cost}', pullType === 'COIN' ? `300 ${t.logical_coin}` : pullType === 'GEM' ? `3 ${t.logical_gem}` : `1 ${t.gacha_ticket}`)}
               </p>
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-2 gap-3">
                 <button 
-                  onClick={handleCancel}
-                  className={`py-4 rounded-xl font-bold transition-colors border ${isDark ? 'bg-white/5 border-white/10 text-stone-400 hover:bg-white/10' : 'bg-stone-100 border-stone-200 text-stone-600 hover:bg-stone-200'}`}
+                  onClick={() => setStep('IDLE')}
+                  className={`py-4 rounded-xl font-bold transition-colors ${isDark ? 'bg-white/5 text-white hover:bg-white/10' : 'bg-stone-100 text-stone-600 hover:bg-stone-200'}`}
                 >
                   {t.gacha_confirm_cancel}
                 </button>
                 <button 
                   onClick={startPull}
-                  className={`py-4 rounded-xl font-bold hover:scale-105 transition-all shadow-lg font-tech tracking-tight ${isDark ? 'bg-white text-cyber-black' : 'bg-stone-900 text-white'}`}
+                  className={`py-4 rounded-xl font-bold hover:scale-105 transition-all shadow-lg ${isDark ? 'bg-white text-stone-950' : 'bg-stone-900 text-white'}`}
                 >
                   {t.gacha_confirm_ok}
                 </button>

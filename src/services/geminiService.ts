@@ -10,11 +10,7 @@ export async function generateQuestions(difficulty: Difficulty, language: string
     The questions MUST be highly varied and cover different scenarios (business, daily life, science, social issues, etc.).
     The questions MUST follow this specific order and categories:
     1. Category: "Logical Structure" (筋道を立てる力) - e.g., Reordering (Conclusion -> Reason -> Example), Fill-in-the-blanks (e.g., "Library should be quiet because..."), or identifying the main premise.
-    2. Category: "Objective Perspective" (客観的視点) - e.g., Fact vs. Opinion, Identifying bias, or considering an opposing viewpoint.
-       IMPORTANT: If this category is selected, you MUST use one of these themes for an "Opposing Viewpoint" question:
-       - 学校に自販機, 授業はすべてオンライン, テスト回数を増やす, 校則はもっと厳しく, スマホは学校に持ち込む, 給食は全部同じ量, 部活は自由に参加, 学校行事を減らす, 授業時間が短い, 全テキストタブレット, 制服は毎年変える, 放課後は全員自習, 体育祭は競争をなくす, 図書室は漫画を増やす, 成績はすべて公開, 授業中の発言は自由, 学校にもっと宿題を出す, 朝の会はなくていい, 席替えは毎月, 学校は週4日, すべての会社は週4日勤務, 電車の中では通話を禁止, 全部キャッシュレス, ニュースはすべて無料, すべて電気自動車, 学校のテストはすべてなくす, 動画サイトは年齢制限をもっと厳しく, コンビニは24時間営業をやめる, 観光地入場料をもっと上げる, インターネットは実名登録, プラスチック製品を全面的に禁止, 有名人はSNSを使うべきではない, すべての仕事をAIに任せる, ゲームは1日1時間までに制限, 広告はすべて禁止, 大学は誰でも無料, ニュースにコメント欄は不要, 学校や会社はすべて制服.
-       The question should ask "What is the most correct opposite opinion?" (反対として最も正しいのは何ですか？) for the chosen theme.
-
+    2. Category: "Objective Perspective" (客観的視点) - e.g., Fact vs. Opinion, Identifying bias, or considering an opposing viewpoint (e.g., "What is a disadvantage of digital textbooks?").
     3. Category: "Logic Puzzle" (論理クイズ) - A logic puzzle that can be solved through reasoning. 
        IMPORTANT: Use these themes as inspiration for the "Logic Puzzle" category based on the requested difficulty.
        NEVER use the word "幼女" (Little Girl). Use "探偵" (Detective), "ある人" (A person), or "子供" (Child) instead.
